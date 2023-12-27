@@ -69,7 +69,7 @@ namespace TestAPIAllure
         [AllureTag("API")]
         public void TestCreateAddress()
         {
-            string url = "https://localhost:7097/praticka/CreateAddress";
+            string url = "https://localhost:7097/CreateAddress";
 
             var address = new Address
             {
@@ -79,28 +79,83 @@ namespace TestAPIAllure
                 ZipCode = faker.Address.ZipCode()
             };
 
+            string jsonData = JsonConvert.SerializeObject(address);
+
+            HttpContent content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+
+            using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, url))
+            {
+                request.Content = content;
+
+                using (HttpResponseMessage response = httpClient.SendAsync(request).Result)
+                {
+                    var responseContent = response.Content.ReadAsStringAsync().Result;
+                    LogTestResult("TestCreateAddress", HttpMethod.Post, url, (int)response.StatusCode);
+                    Console.WriteLine("POST Create Address Response content: " + responseContent);
+                    Console.WriteLine("POST Create Address Status code: " + (int)response.StatusCode);
+                    Assert.AreEqual(200, (int)response.StatusCode); // Проверка успешного создания адреса
+                }
+            }
+        }
+
+
+        private List<int> GetAvailableAddressIdsFromAPI()
+        {
+            List<int> availableIds = new List<int>();
+
+            string url = "https://localhost:7097/GetAllAddresses";
+
+            using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url))
+            {
+                using (HttpResponseMessage response = httpClient.SendAsync(request).Result)
+                {
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var content = response.Content.ReadAsStringAsync().Result;
+                        // Распарсить ответ и извлечь доступные ID адресов
+                        // Например, если ответ содержит JSON с массивом ID: 
+                        // availableIds = ParseIdsFromJson(content);
+                    }
+                    else
+                    {
+                        // Обработка случая, когда запрос завершился неудачно
+                    }
+                }
+            }
+
+            return availableIds;
         }
 
         [Test]
         [AllureTag("API")]
         public void TestUpdateAddress()
         {
-            int id = faker.Random.Number();
-            string url = $"https://localhost:7097/praticka/UpdateProduct/{id}";
+            // Получение списка доступных ID адресов
+            List<int> availableAddressIds = GetAvailableAddressIdsFromAPI();
+
+            // Проверка, есть ли доступные адреса для обновления
+            if (!availableAddressIds.Any())
+            {
+                Assert.Fail("No available addresses to update.");
+            }
+
+            // Выбор первого доступного ID для обновления
+            int idToUpdate = availableAddressIds.First();
+            string url = $"https://localhost:7097/praticka/UpdateProduct/{idToUpdate}";
 
             var updatedAddress = new Address
             {
-                Id = id,
+                Id = idToUpdate,
                 Street = faker.Address.StreetAddress(),
                 City = faker.Address.City(),
                 ZipCode = faker.Address.ZipCode()
             };
 
-            // Implement the code to send PUT request with updatedAddress payload
+            // Реализуйте код для отправки PUT-запроса с обновленными данными адреса
 
             using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Put, url))
             {
-                // Add necessary request headers or content (e.g., request.Content = ...)
+                // Добавьте необходимые заголовки запроса или контент (например, request.Content = ...)
 
                 using (HttpResponseMessage response = httpClient.SendAsync(request).Result)
                 {
@@ -117,7 +172,7 @@ namespace TestAPIAllure
         [AllureTag("API")]
         public void TestDeleteAddress()
         {
-            int id = faker.Random.Number();
+            int id = 123; // Замените на фактический ID адреса, который вы хотите удалить
             string url = $"https://localhost:7097/praticka/DeleteAddress/{id}";
 
             using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Delete, url))
@@ -132,6 +187,7 @@ namespace TestAPIAllure
                 }
             }
         }
+
         [Test]
         [AllureTag("API")]
         public void TestGetAddressById()
@@ -192,7 +248,7 @@ namespace TestAPIAllure
         [AllureTag("API")]
         public void TestGetAllOrders()
         {
-            string url = "https://localhost:7097/praticka/GetAllOrders";
+            string url = "https://localhost:7097/GetAllOrders"; // Правильный URL для GetAllOrders
 
             using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url))
             {
@@ -206,6 +262,7 @@ namespace TestAPIAllure
                 }
             }
         }
+
 
         [Test]
         [AllureTag("API")]
@@ -249,12 +306,13 @@ namespace TestAPIAllure
             Console.WriteLine($"Method: {method}, URL: {url}, Status Code: {statusCode}");
             // Implement code to log test results to a file or a logger
         }
+
         [Test]
         [AllureTag("API")]
         public void TestGetOrderById()
         {
-            int orderId = 1; // Replace with the actual order ID you want to retrieve
-            string url = $"https://localhost:7097/praticka/GetOrderById/{orderId}";
+            int orderId = 1; // Замените на фактический ID заказа, который вы хотите получить
+            string url = $"https://localhost:7097/GetOrderById/{orderId}"; // Правильный URL для GetOrderById
 
             using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url))
             {
@@ -273,12 +331,12 @@ namespace TestAPIAllure
         [AllureTag("API")]
         public void TestUpdateOrder()
         {
-            int orderId = 1; // Replace with the actual order ID you want to update
-            string url = $"https://localhost:7097/praticka/UpdateOrder/{orderId}";
+            int orderId = 1; // Замените на фактический ID заказа, который вы хотите обновить
+            string url = $"https://localhost:7097/UpdateOrder/{orderId}";
 
             var updatedOrder = new Order
             {
-                // Provide updated data for the order
+                // Задайте обновленные данные для заказа
                 Id = orderId,
                 UserId = faker.Random.Number(),
                 OrderDate = DateTime.Now,
@@ -289,22 +347,24 @@ namespace TestAPIAllure
         }
             };
 
-            // Implement the code to send PUT request with updatedOrder payload to the specified URL
+            string jsonData = JsonConvert.SerializeObject(updatedOrder);
+            HttpContent content = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
             using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Put, url))
             {
-                // Add necessary request headers or content (e.g., request.Content = ...)
+                request.Content = content;
 
                 using (HttpResponseMessage response = httpClient.SendAsync(request).Result)
                 {
-                    var content = response.Content.ReadAsStringAsync().Result;
+                    var responseContent = response.Content.ReadAsStringAsync().Result;
                     LogTestResult("TestUpdateOrder", HttpMethod.Put, url, (int)response.StatusCode);
-                    Console.WriteLine($"PUT Update Order Response content for ID {orderId}: " + content);
+                    Console.WriteLine($"PUT Update Order Response content for ID {orderId}: " + responseContent);
                     Console.WriteLine($"PUT Update Order Status code for ID {orderId}: " + (int)response.StatusCode);
                     Assert.AreEqual(200, (int)response.StatusCode);
                 }
             }
         }
+
 
         [Test]
         [AllureTag("API")]
