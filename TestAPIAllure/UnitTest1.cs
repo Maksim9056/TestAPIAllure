@@ -45,7 +45,7 @@ namespace TestAPIAllure
         [AllureTag("API")]
         public void TestGetAllAddresses()
         {
-            string url = "https://localhost:7097/praticka/GetAllAddresses";
+            string url = "https://localhost:7097/GetAllAddresses";
 
             using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url))
             {
@@ -112,9 +112,10 @@ namespace TestAPIAllure
                     if (response.IsSuccessStatusCode)
                     {
                         var content = response.Content.ReadAsStringAsync().Result;
-                        // Распарсить ответ и извлечь доступные ID адресов
-                        // Например, если ответ содержит JSON с массивом ID: 
-                        // availableIds = ParseIdsFromJson(content);
+
+                        // Десериализация JSON и извлечение доступных ID адресов
+                        var addresses = JsonConvert.DeserializeObject<List<Address>>(content);
+                        availableIds = addresses.Select(a => a.Id).ToList();
                     }
                     else
                     {
@@ -125,6 +126,7 @@ namespace TestAPIAllure
 
             return availableIds;
         }
+
 
         [Test]
         [AllureTag("API")]
@@ -141,7 +143,7 @@ namespace TestAPIAllure
 
             // Выбор первого доступного ID для обновления
             int idToUpdate = availableAddressIds.First();
-            string url = $"https://localhost:7097/praticka/UpdateProduct/{idToUpdate}";
+            string url = $"https://localhost:7097/UpdateAddress/{idToUpdate}";
 
             var updatedAddress = new Address
             {
@@ -151,29 +153,41 @@ namespace TestAPIAllure
                 ZipCode = faker.Address.ZipCode()
             };
 
-            // Реализуйте код для отправки PUT-запроса с обновленными данными адреса
+            // Преобразование объекта updatedAddress в JSON и его добавление в запрос
+            string jsonData = JsonConvert.SerializeObject(updatedAddress);
+            HttpContent content = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
+            // Отправка PUT-запроса с обновленными данными адреса
             using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Put, url))
             {
-                // Добавьте необходимые заголовки запроса или контент (например, request.Content = ...)
+                request.Content = content; // Добавление тела запроса
 
                 using (HttpResponseMessage response = httpClient.SendAsync(request).Result)
                 {
-                    var content = response.Content.ReadAsStringAsync().Result;
+                    var responseContent = response.Content.ReadAsStringAsync().Result;
                     LogTestResult("TestUpdateAddress", HttpMethod.Put, url, (int)response.StatusCode);
-                    Console.WriteLine("PUT Update Address Response content: " + content);
+                    Console.WriteLine("PUT Update Address Response content: " + responseContent);
                     Console.WriteLine("PUT Update Address Status code: " + (int)response.StatusCode);
                     Assert.AreEqual(200, (int)response.StatusCode);
                 }
             }
         }
 
+
         [Test]
         [AllureTag("API")]
         public void TestDeleteAddress()
         {
-            int id = 123; // Замените на фактический ID адреса, который вы хотите удалить
-            string url = $"https://localhost:7097/praticka/DeleteAddress/{id}";
+            List<int> availableAddressIds = GetAvailableAddressIdsFromAPI();
+            if (!availableAddressIds.Any())
+            {
+                Assert.Fail("No available addresses to update.");
+            }
+
+            // Выбор первого доступного ID для обновления
+            int idToUpdate = availableAddressIds.First();
+            int id = idToUpdate; // Замените на фактический ID адреса, который вы хотите удалить
+            string url = $"https://localhost:7097/DeleteAddress/{id}";
 
             using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Delete, url))
             {
@@ -192,8 +206,16 @@ namespace TestAPIAllure
         [AllureTag("API")]
         public void TestGetAddressById()
         {
-            int id = faker.Random.Number();
-            string url = $"https://localhost:7097/praticka/GetAddressById/{id}";
+            List<int> availableAddressIds = GetAvailableAddressIdsFromAPI();
+            if (!availableAddressIds.Any())
+            {
+                Assert.Fail("No available addresses to update.");
+            }
+
+            // Выбор первого доступного ID для обновления
+            int idToUpdate = availableAddressIds.First();
+            int id = idToUpdate;
+            string url = $"https://localhost:7097/GetAddressById/{id}";
 
             using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url))
             {
@@ -421,7 +443,6 @@ namespace TestAPIAllure
                 using (HttpResponseMessage response = httpClient.SendAsync(request).Result)
                 {
                     var content = response.Content.ReadAsStringAsync().Result;
-                    LogTestResult("TestGetAllProducts", HttpMethod.Get, url, (int)response.StatusCode);
                     Console.WriteLine($"GET All Products Response content: {content}");
                     Console.WriteLine($"GET All Products Status code: {(int)response.StatusCode}");
                     Assert.AreEqual(200, (int)response.StatusCode);
@@ -441,29 +462,43 @@ namespace TestAPIAllure
 
             var newProduct = new Product
             {
-                // Define the properties for the new product
+                // Определение свойств для нового продукта
                 Id = Faker.Random.Number(),
                 Name = Faker.Commerce.ProductName(),
                 Price = Faker.Random.Decimal(),
                 Category = Faker.Commerce.Categories(1)[0]
             };
 
-            // Implement the code to send a POST request with newProduct payload to the specified URL
-            // Validate the response and log the test result
-        }
-        private void LogTestResult(string methodName, HttpMethod method, string url, int statusCode)
-        {
-            string safeFileName = GenerateSafeFileName(methodName, method, url);
+            // Преобразование объекта нового продукта в JSON
+            string jsonPayload = JsonConvert.SerializeObject(newProduct);
 
-            AllureLifecycle.Instance.WrapInStep(() =>
+            using (var request = new HttpRequestMessage(HttpMethod.Post, url))
             {
-                AllureLifecycle.Instance.AddAttachment($"{methodName}_Request", "application/json", $"{method} {url}");
-                AllureLifecycle.Instance.AddAttachment($"{methodName}_Response", "application/json", $"Status code: {statusCode}");
-            }, safeFileName + " Details");
+                // Установка контента запроса с данными нового продукта
+                request.Content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
+
+                using (HttpResponseMessage response = httpClient.SendAsync(request).Result)
+                {
+                    var content = response.Content.ReadAsStringAsync().Result;
+                    Console.WriteLine($"POST Create Product Response content: {content}");
+                    Console.WriteLine($"POST Create Product Status code: {(int)response.StatusCode}");
+                    Assert.AreEqual(200, (int)response.StatusCode); // Проверка успешного создания продукта
+                }
+            }
         }
 
+        private string GenerateSafeFileName(string url)
+        {
+            char[] invalidPathChars = System.IO.Path.GetInvalidFileNameChars();
+            string fileName = url.Replace("https://", "").Replace("http://", "").Replace("/", "_");
+            foreach (char invalidChar in invalidPathChars)
+            {
+                fileName = fileName.Replace(invalidChar, '_');
+            }
+            return fileName;
+        }
 
-     private string GenerateSafeFileName(string methodName, HttpMethod method, string url)
+        private string GenerateSafeFileName(string methodName, HttpMethod method, string url)
     {
         string combinedString = $"{methodName}_{method}_{url}";
         byte[] bytes = Encoding.UTF8.GetBytes(combinedString);
@@ -475,28 +510,8 @@ namespace TestAPIAllure
         }
     }
 
-    private void AddAttachment(string attachmentName, string contentType, string content)
-        {
-            byte[] contentBytes = System.Text.Encoding.UTF8.GetBytes(content);
 
-            using (MemoryStream stream = new MemoryStream(contentBytes))
-            using (StreamReader reader = new StreamReader(stream))
-            {
-                string contentString = reader.ReadToEnd();
-                attachmentName =SanitizeFileName(attachmentName);
-                AllureLifecycle.Instance.AddAttachment(attachmentName, contentType, contentString);
-            }
-        }
-        private string SanitizeFileName(string fileName)
-        {
-            // Заменить запрещенные символы на подчеркивание
-            string invalidChars = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
-            foreach (char c in invalidChars)
-            {
-                fileName = fileName.Replace(c, '_');
-            }
-            return fileName;
-        }
+     
 
         public class Product
         {
@@ -516,7 +531,17 @@ namespace TestAPIAllure
         [AllureSubSuite("GetProductById")]
         public void TestGetProductById()
         {
-            int productId = Faker.Random.Number(1, 100); // Replace with a valid product ID
+            List<int> availableProductIds = GetAvailableProductIdsFromAPI();
+
+            // Проверка, есть ли доступные продукты для обновления
+            if (!availableProductIds.Any())
+            {
+                Assert.Fail("No available products to update.");
+            }
+
+            // Выбор первого доступного ID для обновления
+            int productIdToUpdate = availableProductIds.First();
+            int productId = productIdToUpdate; // Replace with a valid product ID
 
             string url = $"https://localhost:7097/praticka/GetProductById/{productId}";
 
@@ -525,7 +550,6 @@ namespace TestAPIAllure
                 using (HttpResponseMessage response = httpClient.SendAsync(request).Result)
                 {
                     var content = response.Content.ReadAsStringAsync().Result;
-                    LogTestResult("TestGetProductById", HttpMethod.Get, url, (int)response.StatusCode);
                     Console.WriteLine($"GET Product by ID Response content: {content}");
                     Console.WriteLine($"GET Product by ID Status code: {(int)response.StatusCode}");
                     Assert.AreEqual(200, (int)response.StatusCode);
@@ -533,6 +557,33 @@ namespace TestAPIAllure
             }
         }
 
+        private List<int> GetAvailableProductIdsFromAPI()
+        {
+            List<int> availableIds = new List<int>();
+
+            string url = "https://localhost:7097/praticka/GetAllProducts";
+
+            using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url))
+            {
+                using (HttpResponseMessage response = httpClient.SendAsync(request).Result)
+                {
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var content = response.Content.ReadAsStringAsync().Result;
+
+                        // Десериализация JSON и извлечение доступных ID продуктов
+                        var products = JsonConvert.DeserializeObject<List<Product>>(content);
+                        availableIds = products.Select(p => p.Id).ToList();
+                    }
+                    else
+                    {
+                        // Обработка случая, когда запрос завершился неудачно
+                    }
+                }
+            }
+
+            return availableIds;
+        }
 
         [Test]
         [AllureTag("API")]
@@ -543,17 +594,28 @@ namespace TestAPIAllure
         [AllureSubSuite("UpdateProduct")]
         public void TestUpdateProduct()
         {
-            int productId = Faker.Random.Number(1, 100); // Replace with a valid product ID
+            // Получение списка доступных ID продуктов
+            List<int> availableProductIds = GetAvailableProductIdsFromAPI();
 
-            string url = $"https://localhost:7097/praticka//UpdateProduct/{productId}";
+            // Проверка, есть ли доступные продукты для обновления
+            if (!availableProductIds.Any())
+            {
+                Assert.Fail("No available products to update.");
+            }
 
+            // Выбор первого доступного ID для обновления
+            int productIdToUpdate = availableProductIds.First();
+            string url = $"https://localhost:7097/praticka/UpdateProduct/{productIdToUpdate}";
+
+            // Создание объекта обновленного продукта
             var updatedProduct = new Product
             {
-                // Define the updated properties for the product with ID 'productId'
+                // Определение обновленных свойств для продукта с ID 'productIdToUpdate'
                 Name = Faker.Commerce.ProductName(),
                 Price = Faker.Random.Decimal(),
                 Category = Faker.Commerce.Categories(1)[0]
             };
+
 
             using (var request = new HttpRequestMessage(HttpMethod.Put, url))
             {
@@ -563,7 +625,6 @@ namespace TestAPIAllure
                 using (HttpResponseMessage response = httpClient.SendAsync(request).Result)
                 {
                     var content = response.Content.ReadAsStringAsync().Result;
-                    LogTestResult("TestUpdateProduct", HttpMethod.Put, url, (int)response.StatusCode);
                     Console.WriteLine($"PUT Product Response content: {content}");
                     Console.WriteLine($"PUT Product Status code: {(int)response.StatusCode}");
                     Assert.AreEqual(200, (int)response.StatusCode);
@@ -580,7 +641,17 @@ namespace TestAPIAllure
         [AllureSubSuite("DeleteProduct")]
         public void TestDeleteProduct()
         {
-            int productId = Faker.Random.Number(1, 100); // Replace with a valid product ID
+            List<int> availableProductIds = GetAvailableProductIdsFromAPI();
+
+            // Проверка, есть ли доступные продукты для обновления
+            if (!availableProductIds.Any())
+            {
+                Assert.Fail("No available products to update.");
+            }
+
+            // Выбор первого доступного ID для обновления
+            int productIdToUpdate = availableProductIds.First();
+            int productId = productIdToUpdate; // Replace with a valid product ID
 
             string url = $"https://localhost:7097/praticka/DeleteProduct/{productId}";
 
@@ -589,7 +660,6 @@ namespace TestAPIAllure
                 using (HttpResponseMessage response = httpClient.SendAsync(request).Result)
                 {
                     var content = response.Content.ReadAsStringAsync().Result;
-                    LogTestResult("TestDeleteProduct", HttpMethod.Delete, url, (int)response.StatusCode);
                     Console.WriteLine($"DELETE Product Response content: {content}");
                     Console.WriteLine($"DELETE Product Status code: {(int)response.StatusCode}");
                     Assert.AreEqual(200, (int)response.StatusCode);
