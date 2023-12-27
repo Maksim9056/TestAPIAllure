@@ -1,0 +1,3 @@
+Method: DELETE, URL: https://localhost:7097/praticka/DeleteOrder/1, Status Code: 404
+DELETE Order Response content for ID 1: 
+DELETE Order Status code for ID 1: 404
