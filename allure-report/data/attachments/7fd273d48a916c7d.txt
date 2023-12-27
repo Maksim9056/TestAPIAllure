@@ -1,0 +1,2 @@
+POST Create Product Response content: {"id":2,"name":"Unbranded Metal Bike","price":0.9997955020516160,"category":"Books"}
+POST Create Product Status code: 200

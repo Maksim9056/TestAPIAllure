@@ -1,0 +1,2 @@
+PUT Product Response content: {"id":2,"name":"Gorgeous Rubber Cheese","price":0.1077228677960680,"category":"Industrial"}
+PUT Product Status code: 200

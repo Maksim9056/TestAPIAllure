@@ -1,0 +1,2 @@
+DELETE Product Response content: [{"id":2,"name":"Handmade Steel Shirt","price":0.0663161967258510,"category":"Baby"}]
+DELETE Product Status code: 200

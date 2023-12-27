@@ -1,0 +1,2 @@
+PUT Product Response content: {"id":3,"name":"Handcrafted Steel Shirt","price":0.3079050017091930,"category":"Sports"}
+PUT Product Status code: 200

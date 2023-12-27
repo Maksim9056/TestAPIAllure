@@ -1,0 +1,2 @@
+POST Create Product Response content: {"id":3,"name":"Rustic Wooden Soap","price":0.2636212032584570,"category":"Health"}
+POST Create Product Status code: 200

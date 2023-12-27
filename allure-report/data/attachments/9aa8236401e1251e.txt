@@ -1,0 +1,2 @@
+PUT Product Response content: {"id":1,"name":"Generic Fresh Sausages","price":0.1891550743901890,"category":"Tools"}
+PUT Product Status code: 200

@@ -38,7 +38,8 @@ namespace TestAPIAllure
         {
             httpClient = new HttpClient();
             faker = new Bogus.Faker();
-            logFilePath = "logfile.txt"; // Replace this with your desired log file path
+
+            logFilePath = "test_log.txt"; // Replace this with your desired log file path
         }
 
         [Test]
@@ -257,14 +258,40 @@ namespace TestAPIAllure
     public class OrderApiTests
     {
         private HttpClient httpClient;
-        private Bogus. Faker faker;
+        private Bogus.Faker faker;
+        private string logFilePath = "test_log.txt"; // Путь к файлу лога
 
         [OneTimeSetUp]
         public void Setup()
         {
             httpClient = new HttpClient();
             faker = new Bogus.Faker();
+            //File.WriteAllText(logFilePath, string.Empty); // Очистить содержимое файла перед началом тестов
         }
+
+        private void LogTestResultForOrder(string methodName, HttpMethod method, string url, int statusCode)
+        {
+            //string logFilePath = "test_log.txt"; // Путь к вашему лог-файлу
+            string logMessage = $"Method: {method}, URL: {url}, Status Code: {statusCode}\n";
+
+            try
+            {
+                // Запись в файл или логгер
+                using (StreamWriter writer = File.AppendText(logFilePath))
+                {
+                    writer.WriteLine(logMessage);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Обработка ошибок записи в лог
+                Console.WriteLine($"An error occurred while writing to the log file: {ex.Message}");
+            }
+
+            // Дополнительно можно выводить сообщение в консоль
+            Console.WriteLine(logMessage);
+        }
+
 
         [Test]
         [AllureTag("API")]
@@ -277,16 +304,16 @@ namespace TestAPIAllure
                 using (HttpResponseMessage response = httpClient.SendAsync(request).Result)
                 {
                     var content = response.Content.ReadAsStringAsync().Result;
-                    LogTestResult("TestGetAllOrders", HttpMethod.Get, url, (int)response.StatusCode);
+                    LogTestResultForOrder("TestGetAllOrders", HttpMethod.Get, url, (int)response.StatusCode);
                     Console.WriteLine("GET All Orders Response content: " + content);
                     Console.WriteLine("GET All Orders Status code: " + (int)response.StatusCode);
                     Assert.AreEqual(200, (int)response.StatusCode);
                 }
             }
         }
+    
 
-
-        [Test]
+            [Test]
         [AllureTag("API")]
         public void TestCreateOrder()
         {
@@ -325,9 +352,24 @@ namespace TestAPIAllure
 
         private void LogTestResult(string methodName, HttpMethod method, string url, int statusCode)
         {
-            Console.WriteLine($"Method: {method}, URL: {url}, Status Code: {statusCode}");
-            // Implement code to log test results to a file or a logger
+            string logFilePath = "test_log.txt"; // Путь к вашему лог-файлу
+            string logMessage = $"Method: {method}, URL: {url}, Status Code: {statusCode}\n";
+
+            try
+            {
+                // Запись в файл или логгер
+                File.AppendAllText(logFilePath, logMessage);
+            }
+            catch (Exception ex)
+            {
+                // Обработка ошибок записи в лог
+                Console.WriteLine($"An error occurred while writing to the log file: {ex.Message}");
+            }
+
+            // Дополнительно можно выводить сообщение в консоль
+            Console.WriteLine(logMessage);
         }
+
 
         [Test]
         [AllureTag("API")]
@@ -409,9 +451,9 @@ namespace TestAPIAllure
                 }
             }
         }
-
-
     }
+
+
     [TestFixture]
     [AllureNUnit]
     [AllureSuite("Products API Tests")]
@@ -420,12 +462,37 @@ namespace TestAPIAllure
     {
         private HttpClient httpClient;
         Bogus. Faker Faker = new Bogus.Faker();
+        private static string logFileName = "logfile.txt";
+        private string logFilePath = Path.Combine(System.IO.Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName), logFileName);
+
+         private StreamWriter logStreamWriter;
+
         [OneTimeSetUp]
         public void Setup()
         {
             httpClient = new HttpClient();
+            logFilePath = "test_log.txt"; // Укажите путь к файлу лога
+            logStreamWriter = File.CreateText(logFilePath);
             // Setup any necessary configurations or authentication headers for your API requests
         }
+        [OneTimeTearDown]
+        public void TearDown()
+        {
+            logStreamWriter.Close();
+        }
+
+        private void LogResult(string testName, string requestType, string url, string content, int statusCode, TimeSpan duration)
+        {
+            logStreamWriter.WriteLine($"Test: {testName}");
+            logStreamWriter.WriteLine($"Request Type: {requestType}");
+            logStreamWriter.WriteLine($"URL: {url}");
+            logStreamWriter.WriteLine($"Response Content: {content}");
+            logStreamWriter.WriteLine($"Status Code: {statusCode}");
+            logStreamWriter.WriteLine($"Duration: {duration.TotalMilliseconds} ms");
+            logStreamWriter.WriteLine();
+        }
+
+
 
         [Test]
         [AllureTag("API")]
@@ -438,6 +505,8 @@ namespace TestAPIAllure
         {
             string url = "https://localhost:7097/praticka/GetAllProducts";
 
+            Stopwatch stopwatch = Stopwatch.StartNew();
+
             using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url))
             {
                 using (HttpResponseMessage response = httpClient.SendAsync(request).Result)
@@ -446,9 +515,13 @@ namespace TestAPIAllure
                     Console.WriteLine($"GET All Products Response content: {content}");
                     Console.WriteLine($"GET All Products Status code: {(int)response.StatusCode}");
                     Assert.AreEqual(200, (int)response.StatusCode);
+
+                    stopwatch.Stop();
+                    LogResult(nameof(TestGetAllProducts), "GET", url, content, (int)response.StatusCode, stopwatch.Elapsed);
                 }
             }
         }
+
         [Test]
         [AllureTag("API")]
         [AllureSeverity(SeverityLevel.normal)]
@@ -459,6 +532,8 @@ namespace TestAPIAllure
         public void TestCreateProduct()
         {
             string url = "https://localhost:7097/praticka/CreateProduct";
+
+            Stopwatch stopwatch = Stopwatch.StartNew();
 
             var newProduct = new Product
             {
@@ -483,9 +558,13 @@ namespace TestAPIAllure
                     Console.WriteLine($"POST Create Product Response content: {content}");
                     Console.WriteLine($"POST Create Product Status code: {(int)response.StatusCode}");
                     Assert.AreEqual(200, (int)response.StatusCode); // Проверка успешного создания продукта
+
+                    stopwatch.Stop();
+                    LogResult(nameof(TestCreateProduct), "POST", url, content, (int)response.StatusCode, stopwatch.Elapsed);
                 }
             }
         }
+
 
         private string GenerateSafeFileName(string url)
         {
@@ -511,7 +590,7 @@ namespace TestAPIAllure
     }
 
 
-     
+
 
         public class Product
         {
@@ -521,6 +600,7 @@ namespace TestAPIAllure
             public string Category { get; set; }
 
         }
+
 
         [Test]
         [AllureTag("API")]
@@ -545,6 +625,8 @@ namespace TestAPIAllure
 
             string url = $"https://localhost:7097/praticka/GetProductById/{productId}";
 
+            Stopwatch stopwatch = Stopwatch.StartNew();
+
             using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url))
             {
                 using (HttpResponseMessage response = httpClient.SendAsync(request).Result)
@@ -553,9 +635,13 @@ namespace TestAPIAllure
                     Console.WriteLine($"GET Product by ID Response content: {content}");
                     Console.WriteLine($"GET Product by ID Status code: {(int)response.StatusCode}");
                     Assert.AreEqual(200, (int)response.StatusCode);
+
+                    stopwatch.Stop();
+                    LogResult(nameof(TestGetProductById), "GET", url, content, (int)response.StatusCode, stopwatch.Elapsed);
                 }
             }
         }
+
 
         private List<int> GetAvailableProductIdsFromAPI()
         {
@@ -616,6 +702,7 @@ namespace TestAPIAllure
                 Category = Faker.Commerce.Categories(1)[0]
             };
 
+            Stopwatch stopwatch = Stopwatch.StartNew();
 
             using (var request = new HttpRequestMessage(HttpMethod.Put, url))
             {
@@ -628,9 +715,13 @@ namespace TestAPIAllure
                     Console.WriteLine($"PUT Product Response content: {content}");
                     Console.WriteLine($"PUT Product Status code: {(int)response.StatusCode}");
                     Assert.AreEqual(200, (int)response.StatusCode);
+
+                    stopwatch.Stop();
+                    LogResult(nameof(TestUpdateProduct), "PUT", url, content, (int)response.StatusCode, stopwatch.Elapsed);
                 }
             }
         }
+
 
         [Test]
         [AllureTag("API")]
@@ -655,6 +746,8 @@ namespace TestAPIAllure
 
             string url = $"https://localhost:7097/praticka/DeleteProduct/{productId}";
 
+            Stopwatch stopwatch = Stopwatch.StartNew();
+
             using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Delete, url))
             {
                 using (HttpResponseMessage response = httpClient.SendAsync(request).Result)
@@ -663,12 +756,13 @@ namespace TestAPIAllure
                     Console.WriteLine($"DELETE Product Response content: {content}");
                     Console.WriteLine($"DELETE Product Status code: {(int)response.StatusCode}");
                     Assert.AreEqual(200, (int)response.StatusCode);
+
+                    stopwatch.Stop();
+                    LogResult(nameof(TestDeleteProduct), "DELETE", url, content, (int)response.StatusCode, stopwatch.Elapsed);
                 }
             }
-
-
-
         }
+
     }
 }
 

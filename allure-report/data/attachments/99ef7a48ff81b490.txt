@@ -1,0 +1,2 @@
+POST Create Product Response content: {"id":3,"name":"Small Cotton Chicken","price":0.1348739881696520,"category":"Beauty"}
+POST Create Product Status code: 200

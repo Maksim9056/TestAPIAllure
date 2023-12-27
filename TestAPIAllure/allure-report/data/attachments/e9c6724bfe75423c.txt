@@ -1,0 +1,2 @@
+GET Product by ID Response content: {"type":"https://tools.ietf.org/html/rfc9110#section-15.5.5","title":"Not Found","status":404,"traceId":"00-2c070c37d2c91576393f8d02df282cb0-0cd5956f6c7d73be-00"}
+GET Product by ID Status code: 404

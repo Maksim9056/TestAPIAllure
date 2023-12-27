@@ -1,0 +1,2 @@
+GET Product by ID Response content: {"id":1,"name":"Generic Fresh Sausages","price":0.1891550743901890,"category":"Tools"}
+GET Product by ID Status code: 200

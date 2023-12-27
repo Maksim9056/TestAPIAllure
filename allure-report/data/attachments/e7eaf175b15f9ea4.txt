@@ -1,0 +1,3 @@
+Method: PUT, URL: https://localhost:7097/UpdateOrder/1, Status Code: 200
+PUT Update Order Response content for ID 1: {"id":1,"userId":0,"orderDate":"0001-01-01T00:00:00","products":null}
+PUT Update Order Status code for ID 1: 200

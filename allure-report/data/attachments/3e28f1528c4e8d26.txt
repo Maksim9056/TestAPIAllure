@@ -1,0 +1,2 @@
+POST Create Address Response content: {"id":5,"street":null,"city":null,"zipCode":null}
+POST Create Address Status code: 200

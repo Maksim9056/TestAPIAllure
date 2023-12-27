@@ -1,0 +1,2 @@
+POST Create Product Response content: {"id":2,"name":"Sleek Metal Sausages","price":0.5781111147152780,"category":"Kids"}
+POST Create Product Status code: 200

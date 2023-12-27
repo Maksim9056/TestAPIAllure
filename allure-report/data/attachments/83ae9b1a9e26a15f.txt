@@ -1,0 +1,2 @@
+POST Create Product Response content: {"id":2,"name":"Unbranded Cotton Sausages","price":0.5749245111713760,"category":"Automotive"}
+POST Create Product Status code: 200

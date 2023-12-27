@@ -1,0 +1,2 @@
+PUT Product Response content: {"id":2,"name":"Rustic Wooden Chair","price":0.9478488978686970,"category":"Kids"}
+PUT Product Status code: 200

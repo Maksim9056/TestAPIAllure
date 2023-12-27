@@ -1,0 +1,2 @@
+POST Create Product Response content: {"id":2,"name":"Refined Rubber Shirt","price":0.003984783777960010,"category":"Baby"}
+POST Create Product Status code: 200

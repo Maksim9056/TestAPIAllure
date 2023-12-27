@@ -1,0 +1,2 @@
+GET All Products Response content: [{"id":2,"name":"Sleek Metal Sausages","price":0.5781111147152780,"category":"Kids"}]
+GET All Products Status code: 200

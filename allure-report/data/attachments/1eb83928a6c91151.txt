@@ -1,0 +1,2 @@
+GET Product by ID Response content: {"id":2,"name":"Unbranded Metal Bike","price":0.9997955020516160,"category":"Books"}
+GET Product by ID Status code: 200

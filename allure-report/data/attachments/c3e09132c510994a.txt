@@ -1,0 +1,3 @@
+Method: POST, URL: https://localhost:7097/praticka/CreateOrder, Status Code: 404
+POST Create Order Response content: 
+POST Create Order Status code: 404

@@ -1,0 +1,2 @@
+DELETE Product Response content: 
+DELETE Product Status code: 404

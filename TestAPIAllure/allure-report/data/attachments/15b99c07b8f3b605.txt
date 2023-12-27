@@ -1,0 +1,2 @@
+PUT Product Response content: {"id":2,"name":"Ergonomic Soft Bike","price":0.6908421840941730,"category":"Music"}
+PUT Product Status code: 200

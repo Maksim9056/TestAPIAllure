@@ -1,0 +1,2 @@
+GET All Products Response content: [{"id":3,"name":"Rustic Wooden Soap","price":0.2636212032584570,"category":"Health"},{"id":3,"name":"Small Rubber Ball","price":0.9332799664387850,"category":"Sports"}]
+GET All Products Status code: 200

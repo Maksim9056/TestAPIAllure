@@ -1,0 +1,2 @@
+GET All Addresses Response content: [{"id":1,"street":null,"city":null,"zipCode":null},{"id":2,"street":null,"city":null,"zipCode":null},{"id":3,"street":null,"city":null,"zipCode":null}]
+GET All Addresses Status code: 200

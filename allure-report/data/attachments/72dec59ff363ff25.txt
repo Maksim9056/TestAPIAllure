@@ -1,0 +1,2 @@
+GET All Products Response content: [{"id":2,"name":"Handmade Steel Shirt","price":0.0663161967258510,"category":"Baby"}]
+GET All Products Status code: 200

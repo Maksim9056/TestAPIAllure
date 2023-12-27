@@ -1,0 +1,3 @@
+Method: GET, URL: https://localhost:7097/praticka/GetAllOrders, Status Code: 404
+GET All Orders Response content: 
+GET All Orders Status code: 404

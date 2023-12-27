@@ -1,0 +1,2 @@
+DELETE Product Response content: [{"id":3,"name":"Small Rubber Ball","price":0.9332799664387850,"category":"Sports"},{"id":3,"name":"Small Cotton Chicken","price":0.1348739881696520,"category":"Beauty"}]
+DELETE Product Status code: 200

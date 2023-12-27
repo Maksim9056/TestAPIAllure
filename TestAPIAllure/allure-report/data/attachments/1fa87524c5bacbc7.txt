@@ -1,0 +1,2 @@
+GET Product by ID Response content: {"id":3,"name":"Small Rubber Ball","price":0.9332799664387850,"category":"Sports"}
+GET Product by ID Status code: 200

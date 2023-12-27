@@ -1,0 +1,2 @@
+DELETE Address for ID 3 Response content: [{"id":3,"street":null,"city":null,"zipCode":null},{"id":3,"street":null,"city":null,"zipCode":null}]
+DELETE Address for ID 3 Status code: 200

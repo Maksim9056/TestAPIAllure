@@ -1,0 +1,2 @@
+POST Create Product Response content: {"id":3,"name":"Small Rubber Ball","price":0.9332799664387850,"category":"Sports"}
+POST Create Product Status code: 200

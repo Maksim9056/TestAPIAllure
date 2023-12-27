@@ -1,0 +1,2 @@
+PUT Update Address Response content: {"type":"https://tools.ietf.org/html/rfc9110#section-15.5.16","title":"Unsupported Media Type","status":415,"traceId":"00-7c10e31f6c122f3cd918a450decc0918-bb9224ebded1ab92-00"}
+PUT Update Address Status code: 415

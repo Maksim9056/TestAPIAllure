@@ -1,0 +1,2 @@
+GET Address by ID Response for ID 5: {"id":5,"street":null,"city":null,"zipCode":null}
+GET Address by ID Status code for ID 5: 200

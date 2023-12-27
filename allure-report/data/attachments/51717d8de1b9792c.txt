@@ -1,0 +1,3 @@
+Method: PUT, URL: https://localhost:7097/praticka/UpdateOrder/1, Status Code: 404
+PUT Update Order Response content for ID 1: 
+PUT Update Order Status code for ID 1: 404

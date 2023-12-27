@@ -1,0 +1,3 @@
+Method: GET, URL: https://localhost:7097/GetAllOrders, Status Code: 200
+GET All Orders Response content: [{"id":1,"userId":0,"orderDate":"0001-01-01T00:00:00","products":null},{"id":2,"userId":0,"orderDate":"0001-01-01T00:00:00","products":null},{"id":3,"userId":0,"orderDate":"0001-01-01T00:00:00","products":null},{"id":4,"userId":0,"orderDate":"0001-01-01T00:00:00","products":null},{"id":5,"userId":0,"orderDate":"0001-01-01T00:00:00","products":null},{"id":6,"userId":0,"orderDate":"0001-01-01T00:00:00","products":null},{"id":7,"userId":0,"orderDate":"0001-01-01T00:00:00","products":null}]
+GET All Orders Status code: 200

@@ -1,0 +1,2 @@
+PUT Product Response content: {"id":3,"name":"Awesome Plastic Shoes","price":0.07883419845198940,"category":"Music"}
+PUT Product Status code: 200

@@ -1,0 +1,2 @@
+DELETE Product Response content: {"type":"https://tools.ietf.org/html/rfc9110#section-15.5.5","title":"Not Found","status":404,"traceId":"00-b08d30493163c543000528de9a8c908c-22e86f1b3beb64a6-00"}
+DELETE Product Status code: 404

@@ -1,0 +1,2 @@
+PUT Product Response content: {"id":2,"name":"Sleek Concrete Cheese","price":0.5561239535716010,"category":"Health"}
+PUT Product Status code: 200

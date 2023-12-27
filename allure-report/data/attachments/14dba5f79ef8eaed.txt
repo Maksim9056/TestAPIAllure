@@ -1,0 +1,2 @@
+GET All Products Response content: []
+GET All Products Status code: 200
